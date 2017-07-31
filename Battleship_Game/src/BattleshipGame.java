@@ -17,7 +17,7 @@ class BattleshipGame{
   public static Fleet enemyFleet = enemy.getFleet();
   public static Player player;
   public static Fleet playerFleet;
-  public static char MODE = 'E';
+  public static char MODE;
   
   public static void main(String[] args){
     System.out.println("JAVA BATTLESHIP CREATED BY RJDOUBLEU\n\n");
@@ -26,8 +26,8 @@ class BattleshipGame{
     player = new Player(name, new Fleet(pships, pgrid));
     playerFleet = player.getFleet();
     createBoard();
-    System.out.println("A.I. SETTING: EASY, MEDIUM, OR HARD (E/M/H) [Default]");
-    MODE = in.next().charAt(0);
+    System.out.println("A.I. SETTING: EASY, MEDIUM, OR HARD (E/M/H) [Default is easy]");
+    MODE = Character.toUpperCase((in.next().charAt(0)));
     if(MODE!='M' || MODE!='H')
     	MODE = 'E';
     String hit = "";
@@ -41,21 +41,24 @@ class BattleshipGame{
 	  in = new Scanner(System.in);
 	  System.out.println("\n" + player.getName() + "'S FLEET|SELECT POSITIONS");
 	  System.out.println("Would you like enter ships manually? (Y/N) [Default is automatically]: ");
-	  char answer = in.next().charAt(0);
+	  char answer = Character.toUpperCase((in.next().charAt(0)));
 
 	  if(answer == 'Y' || answer == 'y'){
-		  for (Ship s: playerFleet.getShips())
+		  for (Ship s: playerFleet.getShips()){
 			  playerFleet.setPosition(s);
+		  }
 	  }else{
 		  System.out.println("Loading Player Fleet...");
 		  for (Ship s: playerFleet.getShips()){
 			  playerFleet.setAutoPosition(s);
+			  System.out.println(s.getPositions());
 		  }
 	  }
 	  
 	  System.out.println("Loading Enemy Fleet...");
 	  for (Ship x: enemyFleet.getShips()){
 		  enemyFleet.setAutoPosition(x);
+		  System.out.println(x.getPositions());
 	  }
   }
   
@@ -63,7 +66,6 @@ class BattleshipGame{
 	playerFleet.print2DGrid(enemyFleet);
     launchMissle();
     String nHit = autoLaunchMissle(hit);
-    //playerFleet.print2DGrid(enemyFleet);
     playGame(nHit);
   }
   
@@ -116,13 +118,10 @@ class BattleshipGame{
 	  int row = playerFleet.getRandomRowOrCol();
 	  int col = playerFleet.getRandomRowOrCol();
 	  String position = playerFleet.convertToLetter(row) + "" + (col+1);
-	  if (playerFleet.isPosition(position) == true){
-		  if(playerFleet.isHit(position)==false || MODE=='E'){
-			  return "";
-		  }
-	  }else{
+	  if(playerFleet.isHit(position)==false || MODE=='E')
+		  return "";
+	  else
 		  playerFleet.isHit(position);
-	  }
 	  return position;
   }
 }

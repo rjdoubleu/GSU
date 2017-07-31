@@ -5,6 +5,7 @@ public class Fleet{
   private final int CONVERSION_ERROR = 10;
   private int[][] myGrid = new int[ROWS][COLS];
   private Ship[] myShips;
+  public static String position = "";
   public static Random rand = new Random();
   public static Scanner in = new Scanner(System.in);
   public Fleet(Ship[] ships, int[][] grid){
@@ -24,34 +25,26 @@ public class Fleet{
     int col = getRandomRowOrCol();
     double hOrV = rand.nextDouble();
     int length = s.getLength();
-    //Horizontal
-    if (hOrV > 0.5){
     for (int v = 0; v < length; v++){
-    	String position = convertToLetter(row) + "" + (col+1);
-	    if (isPosition(position) == false || grid[row][col] != 0){
-	    s.erasePositions();
-	    setAutoPosition(s);
-	    break;
-	    }else if (isPosition(position) && grid[row][col] == 0){
-	    	s.addPosition(position, row, col, this);
-	    	col++;
-	    }
-      }
+    	position = convertToLetter(row) + "" + (col+1);
+    	if (isPositionValid(position) == false){
+    	   	s.erasePositions(getGrid());
+    	   	setAutoPosition(s);
+        	break;
+    	}else if(isPositionOpen(position, true) == false){
+    		s.getPositions().remove(position);
+    		s.erasePositions(getGrid());
+    		setAutoPosition(s);
+    		break;
+   	    }else{
+   	    	grid[row][col] = 1;
+    	   	s.addPosition(position);
+        	if (hOrV < 0.5)
+   	    		row++;
+   	    	else if (hOrV > 0.5)
+   	    		col++;
+   	    }	
     }
-    //Vertical
-    if (hOrV < 0.5){
-        for (int v = 0; v < length; v++){
-        	String position = convertToLetter(row) + "" + (col+1);
-    	    if (isPosition(position) == false || grid[row][col] != 0){
-    	    s.erasePositions();
-    	    setAutoPosition(s);
-    	    break;
-    	    }else if (isPosition(position) && grid[row][col] == 0){
-    	    	s.addPosition(position, row, col, this);
-    	    	row++;
-    	    }
-          }
-        }
   }
   
   public void setPosition(Ship s){
@@ -76,11 +69,11 @@ public class Fleet{
     }else{
       for (int q = 0; q < arrInPositions.size(); q++){
         String position = arrInPositions.get(q);
-        if (isPosition(position) == true){
+        if (isPositionValid(position) && isPositionOpen(position, true)){
           int r = convertToInt(position.substring(0, 1));
           int c = Integer.parseInt(position.substring(1))-1;
           if (grid[r][c] == 0){
-        	  s.addPosition(position, r, c, this);
+        	  s.addPosition(position);
           }else{
             System.out.println("ERROR: Position " + position + " is already taken");
             setPosition(s);
@@ -94,7 +87,7 @@ public class Fleet{
     boolean line = true;
     for (String z: positions){
       String w;
-      if(isPosition(z)==false){ //why no work
+      if(isPositionOpen(z, true)==false){
     	  line = false;
     	  System.out.println(z + " is not a position");
       }
@@ -254,16 +247,24 @@ public class Fleet{
     return hit;
   }
   
-  public boolean isPosition(String position){
+  public boolean isPositionValid(String position){
+	  int row = convertToInt(position.substring(0, 1));
+	  int col = Integer.parseInt(position.substring(1))-1;
+	  if (col > 9 || row > 9)
+	    	return false;
+	  else
+		  return true;
+  }
+  
+  public boolean isPositionOpen(String position, boolean SETUP_MODE){
     int[][] grid =  this.getGrid();
-    boolean pol = false;
+    boolean ret = true;
     int row = convertToInt(position.substring(0, 1));
-    int col = Integer.parseInt(position.substring(1));//-1
-    if (col > 9 || row > 9){
-      pol = false;
-    }else if (grid[row][col] == 0 || grid[row][col] == 1){ //a hit is a -1 or -2
-        pol = true;
-    }
-    return pol;
+    int col = Integer.parseInt(position.substring(1))-1; 
+    if (SETUP_MODE && grid[row][col] == 1)
+      ret = false;
+    else if ((grid[row][col] == 0 || grid[row][col] == 1) && SETUP_MODE == false) //a hit is a -1 or -2
+        ret = true;
+    return ret;
   }
 }

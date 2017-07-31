@@ -16,13 +16,18 @@ public class Ship extends Fleet{
   public int getLength(){return myLength;}
   public void addNumberHits(){myNumberHits++;}
   public int getNumberHits(){return myNumberHits;}
-  public void addPosition(String pos, int row, int col, Fleet f){
-    myPositions.add(pos);
-    int[][] grid = f.getGrid();
-    grid[row][col] = 1;
-  }
-  public void erasePositions(){myPositions = new ArrayList<String>(this.getLength()-1);}
+  public void addPosition(String pos){myPositions.add(pos);}
+  public void erasePositions(int[][] grid){
+	  for(int i=0; i< this.myPositions.size();i++){
+		  int row = convertToInt(this.myPositions.get(i).substring(0,1));
+		  int col =  Integer.parseInt(this.myPositions.get(i).substring(1))-1;
+		  grid[row][col] = 0;
+	  }
+	  myPositions.clear();
+	  
+	  }
   public List<String> getPositions(){return myPositions;}
+
   
   public boolean isSunk(){
 	  if(this.myNumberHits == this.myLength)
