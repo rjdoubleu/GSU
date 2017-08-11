@@ -1,8 +1,7 @@
 /* Shout out to http://www.datagenetics.com/blog/december32011/
  * for all the algorithm help
  * 
- * CURRENTLY UNSTABLE, PRIORITY IS TO GET EASY MODE RUNNING
- * RANDOM TARGETING CODE FLAWED
+ * currently stable, need to focus on AI and GUI
  */
 import java.util.*;
 class BattleshipGame{
@@ -28,10 +27,13 @@ class BattleshipGame{
     createBoard();
     System.out.println("A.I. SETTING: EASY, MEDIUM, OR HARD (E/M/H) [Default is easy]");
     MODE = Character.toUpperCase((in.next().charAt(0)));
-    if(MODE!='M' || MODE!='H')
-    	MODE = 'E';
+    //make a handler
     String hit = "";
     playGame(hit);
+    //need to code play again function
+    /*System.out.println("Play again? (Y/N) [Default is no]:");
+	  char answer = Character.toUpperCase((in.next().charAt(0)));
+	  if(answer=='Y')*/
   }
   
   
@@ -65,8 +67,22 @@ class BattleshipGame{
   public static void playGame(String hit){
 	playerFleet.print2DGrid(enemyFleet);
     launchMissle();
+    if(enemyFleet.isSunk()){
+    	endGame(true);
+    }
     String nHit = autoLaunchMissle(hit);
+    if(playerFleet.isSunk()){
+    	endGame(false);
+    }
     playGame(nHit);
+  }
+  
+  public static void endGame(boolean player_win){
+	  if(player_win==true)
+		  System.out.println("Enemy fleet has been sunk, " + player.getName() + "'s fleet is victorious!");
+	  else
+		  System.out.println(player.getName() + "'s fleet has been sunk. The enemy is victorious!");
+	  System.exit(0); // should try to play again
   }
   
   public static void launchMissle(){
@@ -81,48 +97,116 @@ class BattleshipGame{
 	  System.out.println("Launching...");
 	  if(MODE==MEDIUM_MODE){
 		  if(hit == ""){
-			  return randomTargeting();
+			  String pos = randomTargeting();
+			  if(pos=="UNAVAILABLE")
+				  autoLaunchMissle("");
+			  else if(pos!="")
+				  hit = pos;
 		  }else{
 		  //Hunt/Target Parity
-			  int[] surroundingCells = new int[4]; //make handle for corners 
-/*Right*/	  surroundingCells[0] = (playerFleet.getGrid())[Integer.parseInt(hit.substring(1))][playerFleet.convertToInt(hit.substring(0))+1];
-/*Left*/	  surroundingCells[1] = (playerFleet.getGrid())[Integer.parseInt(hit.substring(1))][playerFleet.convertToInt(hit.substring(0))-1];
-/*Up*/		  surroundingCells[2] = (playerFleet.getGrid())[Integer.parseInt(hit.substring(1))-1][playerFleet.convertToInt(hit.substring(0))-1];
-/*Down*/	  surroundingCells[3] = (playerFleet.getGrid())[Integer.parseInt(hit.substring(1))+1][playerFleet.convertToInt(hit.substring(0))-1];
-				for(int sc : surroundingCells) {
-					if(sc!=-1 && sc!=-2 && sc!=-3){
-						String pos = Integer.toString(playerFleet.convertToInt(hit.substring(0))-1) +
-								 playerFleet.convertToLetter(Integer.parseInt(hit.substring(1))+1);
-						if(playerFleet.isHit(pos)){
-							hit = pos;
-						break;
-						}
-					}
-				}
+			  System.out.println("Doing a hunt.");
+			  String[] surroundingCells = new String[4];
+			  if(isCorner(hit)){
+				  if(hit=="A1"){
+					  surroundingCells[0] = getRight(hit);
+					  surroundingCells[1] = getDown(hit);
+				  }else if(hit=="J1"){
+					  surroundingCells[0] = getRight(hit);
+					  surroundingCells[1] = getUp(hit);
+				  }else if(hit=="A10"){
+					  surroundingCells[0] = getLeft(hit);
+					  surroundingCells[1] = getDown(hit);
+				  }else{
+					  surroundingCells[0] = getLeft(hit);
+					  surroundingCells[1] = getUp(hit);
+				  }
+			  }else if(isEdge(hit)){
+				  if(hit.substring(0)=="A"){
+					  surroundingCells[0] = getRight(hit);
+					  surroundingCells[1] = getLeft(hit);
+					  surroundingCells[2] = getDown(hit);
+				  }else if(hit.substring(0)=="J"){
+					  surroundingCells[0] = getLeft(hit);
+					  surroundingCells[1] = getUp(hit);
+					  surroundingCells[2] = getDown(hit);
+				  }else if(hit.substring(1)=="1"){
+					  surroundingCells[0] = getUp(hit);
+					  surroundingCells[1] = getDown(hit);
+					  surroundingCells[0] = getRight(hit);
+				  }else{
+					  surroundingCells[0] = getUp(hit);
+					  surroundingCells[1] = getDown(hit);
+					  surroundingCells[2] = getLeft(hit);
+				  }
+			  }else{
+				  surroundingCells[0] = getRight(hit);
+				  surroundingCells[1] = getLeft(hit);
+				  surroundingCells[2] = getUp(hit);
+				  surroundingCells[3] = getDown(hit);
+			  }
+			  
+			  for(String sc : surroundingCells) {
+				  int val = playerFleet.getGrid()[playerFleet.convertToInt(sc.substring(0,1))][Integer.parseInt(sc.substring(1))-1];
+				  if(val != -3 && val!= -2 && val !=-1 )
+					  //cycle through targets on each turn
+					  //if one or more target was hit, find SCs and repeat
+					  //if no SCs were hit, move to other target
+					  //so you need a list of targets that adjust when a new target is hit
+					  //check on each shot if position hit became -3 sunk
+					  //if so return to random targeting
+					  //unless there's still a hit thats not a sunk
+					  //[another hit ship during targeting process]
+					  System.out.println("Boom lol");
+				  else
+					  System.out.println("Caaannnt dew it");
+			  }
 		  }
-		  /*if( ship is hit but not sunk and cell is next to hit position) 
-		   * if (grid contains -1 but isSunk(ship at position) == false and grid position +0,1 +1,0 -1,0 0,-1 open)
-		   * 		target cell
-		   * else
-		   * 	target random
-		   */
 	 }else if(MODE==HARD_MODE){
 	    	//Advanced Probability
 	 }else{
-	    	randomTargeting();
+	    	if(randomTargeting()=="UNAVAILABLE")
+				  autoLaunchMissle("");
 	 }
+	 System.out.println(hit);
 	 return hit;
   }
   
+  public static String getRight(String pos){return pos.substring(0,1) + (Integer.parseInt(pos.substring(1))+1);}
+  public static String getLeft(String pos){return pos.substring(0,1) + (Integer.parseInt(pos.substring(1))-1);}
+  public static String getUp(String pos){return playerFleet.convertToLetter(playerFleet.convertToInt(pos.substring(0,1))-1) + pos.substring(1);}
+  public static String getDown(String pos){return playerFleet.convertToLetter(playerFleet.convertToInt(pos.substring(0,1))+1) + pos.substring(1);}
+  
   public static String randomTargeting(){
+	  String ret = " ";
 	  int row = playerFleet.getRandomRowOrCol();
 	  int col = playerFleet.getRandomRowOrCol();
 	  String position = playerFleet.convertToLetter(row) + "" + (col+1);
-	  if(playerFleet.isHit(position)==false || MODE=='E')
-		  return "";
+	  if(playerFleet.isPositionOpen(position, false)==true){
+		  if(playerFleet.isHit(position)==false || MODE=='E')
+			  ret = "";
+		  else
+			  ret = position;
+	  }else
+		  ret = "UNAVAILABLE";
+	  return ret;
+  }
+  
+  public static boolean isCorner(String pos){
+	  int row = playerFleet.convertToInt(pos.substring(0,1));
+	  int col = Integer.parseInt(pos.substring(1));
+	  if((row == 0 || row == 9) && (col ==0 || col ==9))
+		  return true;
 	  else
-		  playerFleet.isHit(position);
-	  return position;
+		  return false;
+  }
+  
+  public static boolean isEdge(String pos){
+	  int row = playerFleet.convertToInt(pos.substring(0,1));
+	  int col = Integer.parseInt(pos.substring(1));
+	  if((row == 0 || row == 9 || col ==0 || col ==9) && isCorner(pos)==false)
+		  return true;
+	  else
+		  return false;
   }
 }
   

@@ -122,6 +122,17 @@ public class Fleet{
     return line;
   }
 
+  public boolean isSunk(){
+	  int total_sunk = 0;
+	  for(Ship s: getShips())
+		  if(s.isSunk())
+			  total_sunk++;
+	  if(total_sunk == getShips().length)
+		  return true;
+	  else
+		  return false;
+  }
+  
   public void print2DGrid(Fleet enemy){
     int grid[][] = enemy.getGrid();
     System.out.println("ENEMY FLEET");
@@ -129,7 +140,7 @@ public class Fleet{
     for (int r = 0; r < grid.length; r++){
       System.out.print(convertToLetter(r) + " ");
       for (int c = 0; c < grid[r].length; c++){
-        if (grid[r][c] == -1)
+    	if (grid[r][c] == -1)
           System.out.print(" H ");
         else if (grid[r][c] == -2)
           System.out.print(" M ");
@@ -223,7 +234,7 @@ public class Fleet{
       System.out.println("Position " + position + " is a miss");
       hit = false;
     }else if (grid[row][col] == -2 || grid[row][col] == -1){
-      System.out.println("Position " + position + " has already been choosen, choose again");
+      System.out.println("Position " + position + " has already been choosen, choose again"); //fix dis
       hit = false;
     }else{
       for (Ship s: this.getShips()){
@@ -258,13 +269,21 @@ public class Fleet{
   
   public boolean isPositionOpen(String position, boolean SETUP_MODE){
     int[][] grid =  this.getGrid();
-    boolean ret = true;
+    boolean ret;
+    
+    if(SETUP_MODE == true)
+    	ret = true;
+    else
+    	ret = false;
+    
     int row = convertToInt(position.substring(0, 1));
     int col = Integer.parseInt(position.substring(1))-1; 
     if (SETUP_MODE && grid[row][col] == 1)
       ret = false;
-    else if ((grid[row][col] == 0 || grid[row][col] == 1) && SETUP_MODE == false) //a hit is a -1 or -2
+    else if ((grid[row][col] == 0 || grid[row][col] == 1)&& SETUP_MODE == false){ //a hit is a -1 or -2
         ret = true;
+        System.out.println("0 or 1 & false");
+    }
     return ret;
   }
 }
