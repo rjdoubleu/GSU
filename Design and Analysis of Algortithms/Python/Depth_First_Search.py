@@ -25,7 +25,7 @@ class Graph:
         verticies.append(v)
         c += 1
         
-        # Recur for all the vertices adjacent to this vertex, silly issue here assumes nodes are ordered (7,8,9,...)
+        # Recur for all the vertices adjacent to this vertex
         for i in self.graph[v]:
             if visited[i] == False: 
                 self.DFSUtil(i, visited) 
