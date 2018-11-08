@@ -100,8 +100,7 @@ class BankAccount{
   public static BankAccount createBankAccount(){
     Scanner a = new Scanner(System.in);
     System.out.println("CREATE AN ACCOUNT");
-    System.out.println("ENTER IDENTIFICATION.");
-    System.out.println("EXAMPLE: 4657890");
+    System.out.println("ENTER IDENTIFICATION (EXAMPLE: 4657890):");
     int identification = a.nextInt();
     
     System.out.println("ENTER PASSWORD.");
